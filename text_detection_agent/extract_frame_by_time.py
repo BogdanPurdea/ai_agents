@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def extract_frame_tool(frame_number: int) -> dict:
-    """Extracts a specific frame from the video file specified in .env and saves it as an image.
+def extract_frame_by_time(timestamp: float) -> dict:
+    """Extracts a frame from the video file at the specified timestamp.
 
     Args:
-        frame_number (int): Frame number to extract (0-based index)
+        timestamp (float): Timestamp in seconds to extract the frame from
 
     Returns:
         dict: status and result or error msg with saved image path
@@ -36,14 +36,19 @@ def extract_frame_tool(frame_number: int) -> dict:
         # Open the video file
         cap = cv2.VideoCapture(video_path)
         
-        # Get total number of frames
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = total_frames / fps
         
-        if frame_number >= total_frames:
+        if timestamp < 0 or timestamp > duration:
             return {
                 "status": "error",
-                "error_message": f"Frame number {frame_number} exceeds total frames {total_frames}"
+                "error_message": f"Timestamp {timestamp}s is outside video duration of {duration:.2f}s"
             }
+            
+        # Convert timestamp to frame number
+        frame_number = int(timestamp * fps)
         
         # Set frame position and read the frame
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
@@ -53,12 +58,12 @@ def extract_frame_tool(frame_number: int) -> dict:
         if not ret:
             return {
                 "status": "error",
-                "error_message": f"Failed to extract frame {frame_number}"
+                "error_message": f"Failed to extract frame at timestamp {timestamp}s"
             }
         
         # Create a temporary file with .png extension
         temp_dir = tempfile.gettempdir()
-        temp_image_path = os.path.join(temp_dir, f"frame_{frame_number}.png")
+        temp_image_path = os.path.join(temp_dir, f"frame_{timestamp}s.png")
         
         # Save the frame as PNG
         cv2.imwrite(temp_image_path, frame)
@@ -68,7 +73,7 @@ def extract_frame_tool(frame_number: int) -> dict:
         
         return {
             "status": "success",
-            "report": f"Frame {frame_number} extracted successfully from {video_path}. Dimensions: {width}x{height}. Saved to: {temp_image_path}",
+            "report": f"Frame at {timestamp}s (frame #{frame_number}) extracted successfully from {video_path}. Dimensions: {width}x{height}. Saved to: {temp_image_path}",
             "image_path": temp_image_path
         }
         

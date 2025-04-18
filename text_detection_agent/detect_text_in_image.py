@@ -5,7 +5,7 @@ import os
 # Initialize the OCR reader globally
 reader = easyocr.Reader(['en', 'ro'])
 
-def detect_text_tool(image_path: str) -> dict:
+def detect_text_in_image(image_path: str) -> dict:
     """Detects and recognizes text in an image.
 
     Args:
