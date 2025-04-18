@@ -37,7 +37,7 @@ Currently, this implementation supports Google's Gemini models by default, using
    GOOGLE_GENAI_USE_VERTEXAI=FALSE
    GOOGLE_API_KEY='your-api-key'
    VIDEO_FILE_NAME='your-video-file-name'
-   MODEL_NAME='gemini-2.0-flash'  # Optional, this is the default
+   MODEL_NAME='gemini-2.0-flash'
    ```
 
 ## Usage
